@@ -1,11 +1,13 @@
 import math
-import numpy as np
-import scipy
 import random
+import numpy as np
+import pandas as pd
+import scipy
 from matplotlib import pyplot
 from numpy import unique, where
 from scipy import stats
 from sklearn import mixture
+
 from print import printPartition, printCentroids
 
 
@@ -65,22 +67,22 @@ def NNS(data, dataset):
     return nearest
 
 
-def optimalPartition(dataset, centroidset):
+def optimalPartition(dataset, centroid_set):
     """
 
     :param dataset: dataset [[x, y], [x, y], [x, y]...]
-    :param centroidset: centroid set [[x, y], [x, y]]
+    :param centroid_set: centroid set [[x, y], [x, y]]
     :return: partitions [[[x, y], cluster], [[x, y], cluster]...]
     """
     partition = []
     nearest = []
 
     for i in dataset:
-        nearest.append(NNS(i, centroidset))
+        nearest.append(NNS(i, centroid_set))
 
     for i in range(len(dataset)):
         calc = 1
-        for j in centroidset:
+        for j in centroid_set:
             if nearest[i] == j:
                 partition.append(calc)
             else:
@@ -103,22 +105,22 @@ def centroid_point(data):
 
 def centroid_step(partition, data, k):
     centroid = []
-    tmpdata = []
+    tmp_data = []
     clusters = unique(partition)
 
     for i in clusters:
         for j in range(len(partition)):
             if i == partition[j]:
-                tmpdata.append(data[j])
+                tmp_data.append(data[j])
 
-        centroid.append(centroid_point(tmpdata))
-        tmpdata.clear()
+        centroid.append(centroid_point(tmp_data))
+        tmp_data.clear()
 
-    min = np.amin(data)
-    max = np.amax(data)
+    data_min = np.amin(data)
+    data_max = np.amax(data)
     while len(centroid) < k:
-        centroid.append([random.randrange(min, max),
-                         random.randrange(min, max)])
+        centroid.append([random.randrange(data_min, data_max),
+                         random.randrange(data_min, data_max)])
 
     return centroid
 
@@ -157,38 +159,36 @@ def cluster(data, k):
         tmp = [random.randrange(Min_x, Max_x + 1), random.randrange(Min_x, Max_y + 1)]
         centroids.append(tmp)
         i += 1
-    """
-    # pick random partition values
-    partitions = []
-    for _ in data:
-        partitions.append(random.randrange(1, k + 1))
-    """
+
     sse = 0
     tmp_sse = 1
     clusters = []
+    tmp_centroids = centroids
     partitions = optimalPartition(data, centroids)
+
+    f = open("Output/stats.csv", 'w')
+    f.write("SSE-value;Number of active centroids(n);Number of active centroids(%)\n")
 
     while tmp_sse != sse:
         sse = tmp_sse
+
         centroids = centroid_step(partitions, data, k)
         partitions = optimalPartition(data, centroids)
         clusters = unique(partitions)
         tmp_sse = SSE(data, centroids)
-        print(tmp_sse)
 
-        """
-        # create scatter plot for samples from each cluster
-        for i in clusters:
-            row_ix = where(partitions == i)
-            pyplot.scatter(data[row_ix, 0], data[row_ix, 1])
+        active_centroids = 0
 
-        # add centroids to the plot
-        for i in centroids:
-            pyplot.scatter(i[0], i[1], s=20, c="black")
+        for i in range(len(centroids)):
+            if centroids[i] != tmp_centroids[i]:
+                active_centroids += 1
 
-        # Shows the plot
-        pyplot.show()
-        """
+        f.write(str(round(tmp_sse)) + ';' + str(active_centroids)
+                + ";" + str((active_centroids / len(centroids)) * 100) + '\n')
+
+        tmp_centroids = centroids
+
+    f.close()
 
     # create scatter plot for samples from each cluster
     for i in clusters:
@@ -198,6 +198,9 @@ def cluster(data, k):
     # add centroids to the plot
     for i in centroids:
         pyplot.scatter(i[0], i[1], s=20, c="black")
+
+    d = pd.read_csv("Output/stats.csv", header=0, delimiter=';')
+    print(d)
 
     # print to both .txt files
     printPartition(data, partitions)
