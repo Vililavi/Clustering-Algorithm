@@ -8,7 +8,7 @@ def printPartition(data, partition):
     f = open("Output/partition.txt", 'w')
     j = 0
     for i in data:
-        f.write(str(i)[1:-1] + " " + str(partition[j]) + "\n")
+        f.write(str(i)[1:-1].replace(',', '') + " " + str(partition[j]) + "\n")
         j += 1
     f.close()
 
@@ -22,5 +22,5 @@ def printCentroids(centroids):
 
     f = open("Output/centroid.txt", 'w')
     for i in centroids:
-        f.write(str(i).replace('.', '')[1:-1] + " " + "\n")
+        f.write(str(i).replace('.', '').replace(',', '')[1:-1] + " " + "\n")
     f.close()

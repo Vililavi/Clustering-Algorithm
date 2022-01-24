@@ -4,13 +4,20 @@ from cluster import gaussianMixtureClustering, cluster
 
 def main():
     print("Enter the location of the input file (n/PATH):")
+    print("(input files data must be in format:")
+    print(" 1234 1234")
+    print(" 4321 4321)")
     path = input()
 
     k = 0
     while k < 1:
         print("Enter the k value:")
-        k = int(input())
-    data = []
+        try:
+            k = int(input())
+        except ValueError:
+            print("Value is not a number")
+    data1 = []
+    data2 = []
 
     if path != "n":
         try:
@@ -22,9 +29,9 @@ def main():
 
         for i in lines:
             i.replace("\n", "")
-            data.append(i.split())
+            data1.append(list(map(int, i.split())))
 
-        data = np.array([list(map(int, i)) for i in data])
+        data2 = np.array([list(map(int, i)) for i in data1])
 
     else:
         print("Shutting down")
@@ -35,9 +42,9 @@ def main():
 
     chose = input()
     if chose == '1':
-        gaussianMixtureClustering(data, k)
+        gaussianMixtureClustering(data2, k)
     elif chose == '2':
-        cluster(data, k)
+        cluster(data2, k)
     else:
         print("It seem you can't follow instructions")
 
