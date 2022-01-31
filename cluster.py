@@ -28,24 +28,20 @@ def SSE(data, centroids):
     Sum-of-squared errors
     :param data: Data = [[x, t], [x, y]]
     :param centroids: Centroids = [[x, y], [x, y]]
-    :return:
+    :return: SSE
     """
-    n = len(centroids)
-    centroid = centroids[random.randrange(0, n)]
+
     distances = []
-    for i in data:
+    for i in centroids:
         for j in data:
-            dist = distance(i, j)
-            if dist != "0.0":
-                distances.append(dist)
-            distances.append(distance(i, centroid))
+            distances.append(distance(i, j) ** 2)
 
-    avgDist = 0
+    sse = 0
     for i in distances:
-        avgDist += i
-    avgDist = avgDist / len(distances)
+        print(i)
+        sse += i
 
-    return avgDist
+    return sse
 
 
 def NNS(data, dataset):
@@ -55,6 +51,7 @@ def NNS(data, dataset):
     :param dataset: set of data points [[x, y], [x, y]...]
     :return: nearest neighbour [x, y]
     """
+
     nearest = []
     dist = math.inf
 
@@ -74,6 +71,7 @@ def optimalPartition(dataset, centroid_set):
     :param centroid_set: centroid set [[x, y], [x, y]]
     :return: partitions [[[x, y], cluster], [[x, y], cluster]...]
     """
+
     partition = []
     nearest = []
 
@@ -216,6 +214,7 @@ def gaussianMixtureClustering(data, k):
     :param data: numpy array of shape {1 2}
     :param k: number of clusters
     """
+
     # define the model
     model = mixture.GaussianMixture(n_components=k)
 
