@@ -38,7 +38,7 @@ def main():
 
     print("By which algorithm do you want to use?:\n"
           "1. Gaussian Mixture Clustering\n"
-          "2. Dummy Clustering (by Vili Lavikainen)")
+          "2. K-means (by Vili Lavikainen)")
 
     chose = input()
     if chose == '1':

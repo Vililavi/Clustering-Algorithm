@@ -38,7 +38,6 @@ def SSE(data, centroids):
 
     sse = 0
     for i in distances:
-        print(i)
         sse += i
 
     return sse
@@ -62,6 +61,46 @@ def NNS(data, dataset):
             nearest = i
 
     return nearest
+
+
+def random_swap(centroids, data):
+    """
+    Swaps one cluster to random point in data space
+    :param centroids: list of centroids [[x, y], [x, y]]
+    :param data: list of dataset [[x, y], [x, y], [x, y]...]
+    :return: new centroid list [[x, y], [x, y]]
+    """
+
+    newCentroids = []
+    swap = random.randrange(0, len(centroids))
+
+    Max_x = 0
+    Min_x = math.inf
+    Max_y = 0
+    Min_y = math.inf
+
+    # find max and min in both values in list
+    for i in data:
+        if Max_x < i[0]:
+            Max_x = i[0]
+
+        if Min_x > i[0]:
+            Min_x = i[0]
+
+        if Max_y < i[1]:
+            Max_y = i[1]
+
+        if Min_y > i[1]:
+            Min_y = i[1]
+
+    for i in range(len(centroids)):
+        if i == swap:
+            newCentroids.append([random.randrange(Min_x, Max_x),
+                                 random.randrange(Min_y, Max_y)])
+        else:
+            newCentroids.append(centroids[i])
+
+    return newCentroids
 
 
 def optimalPartition(dataset, centroid_set):
@@ -159,6 +198,7 @@ def cluster(data, k):
         i += 1
 
     sse = 0
+    j = 1
     tmp_sse = 1
     clusters = []
     tmp_centroids = centroids
@@ -167,7 +207,36 @@ def cluster(data, k):
     f = open("Output/stats.csv", 'w')
     f.write("SSE-value;Number of active centroids(n);Number of active centroids(%)\n")
 
+    # Main loop
     while tmp_sse != sse:
+
+        """
+        10 ajoa datalla S1
+
+        Parempien rando swappien määrä:
+        Ajo 1: 36
+        Ajo 2: 22
+        Ajo 3: 42
+        Ajo 4: 49
+        Ajo 5: 11
+        Ajo 6: 16
+        Ajo 7: 2
+        Ajo 8: 25
+        Ajo 9: 31
+        Ajo 10: 18
+        """
+        #Loop for exercise 2.6
+        if j == 5:
+            before_sse = SSE(data, centroids)
+            print("SSE-value before random swap:", before_sse)
+            times = 0
+            for i in range(100):
+                centroids = random_swap(centroids, data)
+                swap_sse = SSE(data, centroids)
+
+                if before_sse > swap_sse:
+                    times += 1
+                    print(times, ": Better SSE:", swap_sse)
         sse = tmp_sse
 
         centroids = centroid_step(partitions, data, k)
@@ -185,6 +254,8 @@ def cluster(data, k):
                 + ";" + str((active_centroids / len(centroids)) * 100) + '\n')
 
         tmp_centroids = centroids
+
+        j += 1
 
     f.close()
 
